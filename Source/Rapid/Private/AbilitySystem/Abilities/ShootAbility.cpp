@@ -55,7 +55,7 @@ void UShootAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 		Super::ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, TriggerEventData);
 
-		if (bHit)
+		if (bHit && HitResult.GetActor())
 		{
 			UAbilitySystemComponent* HitAbilitySystemComponent = HitResult.GetActor()->GetComponentByClass<
 				UAbilitySystemComponent>();
