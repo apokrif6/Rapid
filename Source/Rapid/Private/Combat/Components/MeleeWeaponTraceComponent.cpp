@@ -5,10 +5,40 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Logs/RapidLog.h"
 
+static int32 GDisplayAttackHitDetectionDebug = 0;
+static FAutoConsoleVariableRef CVarDisplayMeleeWeaponTraceDebug(
+	TEXT("Rapid.DisplayMeleeWeaponTraceDebug"),
+	GDisplayAttackHitDetectionDebug,
+	TEXT("Display debug traces for melee attack hit detection (0 - disabled. 1 - enabled)"),
+	ECVF_Cheat);
+
 UMeleeWeaponTraceComponent::UMeleeWeaponTraceComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
+
+void UMeleeWeaponTraceComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (AActor* Owner = GetOwner())
+	{
+		AddActorToIgnore(Owner);
+
+		CollisionMeshComponent = Owner->GetComponentByClass<USkeletalMeshComponent>();
+	}
+}
+
+void UMeleeWeaponTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                               FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!bIsEnabled) return;
+
+	CollisionTrace();
+}
+
 
 void UMeleeWeaponTraceComponent::EnableCollision()
 {
@@ -39,8 +69,10 @@ void UMeleeWeaponTraceComponent::CollisionTrace()
 	TArray<FHitResult> HitResults;
 
 	UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, Radius, ObjectTypes, false,
-	                                                 ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResults, true);
-
+	                                                 ActorsToIgnore, GDisplayAttackHitDetectionDebug
+		                                                                 ? EDrawDebugTrace::ForDuration
+		                                                                 : EDrawDebugTrace::None, HitResults, true,
+	                                                 FColor::Green, FColor::Red, 0.1);
 	for (FHitResult HitResult : HitResults)
 	{
 		LastHitResult = HitResult;
@@ -59,10 +91,6 @@ void UMeleeWeaponTraceComponent::ClearHitActors()
 	AlreadyHitActors.Empty();
 }
 
-void UMeleeWeaponTraceComponent::SetCollisionMeshComponent(UPrimitiveComponent* PrimitiveComponent)
-{
-}
-
 void UMeleeWeaponTraceComponent::AddActorToIgnore(AActor* Actor)
 {
 	ActorsToIgnore.AddUnique(Actor);
@@ -71,20 +99,4 @@ void UMeleeWeaponTraceComponent::AddActorToIgnore(AActor* Actor)
 void UMeleeWeaponTraceComponent::RemoveActorToIgnore(AActor* Actor)
 {
 	ActorsToIgnore.Remove(Actor);
-}
-
-void UMeleeWeaponTraceComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (AActor* Owner = GetOwner())
-	{
-		AddActorToIgnore(Owner);
-
-		CollisionMeshComponent = Owner->GetComponentByClass<USkeletalMeshComponent>();
-	}
-}
-
-void UMeleeWeaponTraceComponent::TickComponent(float DeltaTime)
-{
 }

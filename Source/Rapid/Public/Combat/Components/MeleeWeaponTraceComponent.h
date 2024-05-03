@@ -29,8 +29,6 @@ public:
 
 	void ClearHitActors();
 
-	void SetCollisionMeshComponent(UPrimitiveComponent* PrimitiveComponent);
-
 	TObjectPtr<UPrimitiveComponent> GetCollisionMeshComponent() const { return CollisionMeshComponent; }
 
 	TArray<AActor*> GetAlreadyHitActors() const { return AlreadyHitActors; }
@@ -46,7 +44,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void TickComponent(float DeltaTime) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 	UPROPERTY()
