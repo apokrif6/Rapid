@@ -22,6 +22,9 @@ void UMeleeWeaponTraceNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp,
                                              UAnimSequenceBase* Animation,
                                              const FAnimNotifyEventReference& EventReference)
 {
+	if (!MeshComp || !MeshComp->GetOwner())
+		return;
+
 	UMeleeWeaponTraceComponent* MeleeWeaponTraceComponent = MeshComp->GetOwner()->GetComponentByClass<
 		UMeleeWeaponTraceComponent>();
 	if (!MeleeWeaponTraceComponent) return;
