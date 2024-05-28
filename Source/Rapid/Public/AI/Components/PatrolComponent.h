@@ -15,16 +15,18 @@ class RAPID_API UPatrolComponent : public UActorComponent
 public:
 	UPatrolComponent();
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintCallable)
 	void SetPointToNext();
 
-	UFUNCTION(BlueprintPure)
-	TSoftObjectPtr<USceneComponent> GetCurrentPoint() const;
+	UFUNCTION(BlueprintCallable)
+	FVector GetCurrentPointLocation() const;
 
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Config")
-	TArray<TSoftObjectPtr<USceneComponent>> Points;
+	TArray<TObjectPtr<AActor>> Points;
 
 private:
-	int32 CurrentPointIndex = INDEX_NONE;
+	TObjectPtr<AActor> GetCurrentPoint() const;
+
+	int32 CurrentPointIndex = 0;
 };
