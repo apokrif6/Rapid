@@ -18,29 +18,32 @@ void AAIBaseController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AIPerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &ThisClass::OnPerceptionUpdated);
+	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ThisClass::OnTargetPerceptionUpdated);
 }
 
 void AAIBaseController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	AIPerceptionComponent->OnPerceptionUpdated.RemoveDynamic(this, &ThisClass::OnPerceptionUpdated);
+	AIPerceptionComponent->OnTargetPerceptionUpdated.RemoveDynamic(this, &ThisClass::OnTargetPerceptionUpdated);
 
 	Super::EndPlay(EndPlayReason);
 }
 
-void AAIBaseController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
+void AAIBaseController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
 	if (!BlackboardComponent)
 		return;
 
-	for (AActor* UpdatedActor : UpdatedActors)
+	if (Stimulus.WasSuccessfullySensed())
 	{
-		//TODO
-		//add team affiliation 
-		if (Cast<ARapidCharacter>(UpdatedActor))
+		BlackboardComponent->SetValueAsObject(TargetActorBlackboardKey, Actor);
+	}
+	else
+	{
+		if (const AActor* TargetedActor = Cast<AActor>(BlackboardComponent->GetValueAsObject(TargetActorBlackboardKey));
+			TargetedActor == Actor)
 		{
-			BlackboardComponent->SetValueAsObject(TargetActorBlackboardKey, UpdatedActor);
+			BlackboardComponent->SetValueAsObject(TargetActorBlackboardKey, nullptr);
 		}
 	}
 }

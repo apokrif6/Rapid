@@ -6,6 +6,8 @@
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "AIBaseController.generated.h"
 
+struct FAIStimulus;
+
 UCLASS()
 class RAPID_API AAIBaseController : public AAIController
 {
@@ -27,5 +29,5 @@ protected:
 
 private:
 	UFUNCTION()
-	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
+	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 };
