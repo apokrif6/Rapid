@@ -47,13 +47,6 @@ ARapidCharacter::ARapidCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 }
 
-void ARapidCharacter::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	InitializeGameplayAbilitySystem();
-}
-
 void ARapidCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -100,23 +93,6 @@ void ARapidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		       TEXT(
 			       "'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
 		       ), *GetNameSafe(this));
-	}
-}
-
-void ARapidCharacter::InitializeGameplayAbilitySystem() const
-{
-	if (!GameplayAbilityInputConfig)
-		return;
-
-	for (const FGameplayInputAbilityInfo& InputAbility : GameplayAbilityInputConfig->GetInputAbilities())
-	{
-		if (InputAbility.IsValid())
-		{
-			const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(
-				InputAbility.GameplayAbilityClass.LoadSynchronous(), 1 /* default ability level */,
-				InputAbility.InputID);
-			AbilitySystemComponent->GiveAbility(AbilitySpec);
-		}
 	}
 }
 

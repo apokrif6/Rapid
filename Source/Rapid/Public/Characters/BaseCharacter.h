@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
+class UGameplayAbilityInputConfig;
 class UBaseAttributeSet;
 
 UCLASS()
@@ -21,12 +22,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Input")
+	TObjectPtr<UGameplayAbilityInputConfig> GameplayAbilityInputConfig;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	const UBaseAttributeSet* BaseAttributeSet;
+
+	virtual void PostInitializeComponents() override;
 
 	virtual void BeginPlay() override;
 
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
+
+	void InitializeGameplayAbilitySystem() const;
 };

@@ -10,7 +10,6 @@
 #include "RapidCharacter.generated.h"
 
 class UAbilitySystemComponent;
-class UGameplayAbilityInputConfig;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -51,17 +50,9 @@ protected:
 
 	void Look(const FInputActionValue& Value);
 
-	virtual void PostInitializeComponents() override;
-
 	virtual void BeginPlay() override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Input")
-	TObjectPtr<UGameplayAbilityInputConfig> GameplayAbilityInputConfig;
-
-private:
-	void InitializeGameplayAbilitySystem() const;
 
 	void OnAbilityInputPressed(int32 InputID);
 

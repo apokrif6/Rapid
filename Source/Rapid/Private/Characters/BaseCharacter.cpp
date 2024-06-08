@@ -4,12 +4,20 @@
 #include "Characters/BaseCharacter.h"
 #include "AbilitySystem/Attributes/BaseAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Input/GameplayAbilityInputConfig.h"
 
 ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComponent");
+}
+
+void ABaseCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	InitializeGameplayAbilitySystem();
 }
 
 void ABaseCharacter::BeginPlay()
@@ -32,4 +40,21 @@ void ABaseCharacter::PossessedBy(AController* NewController)
 	}
 
 	SetOwner(NewController);
+}
+
+void ABaseCharacter::InitializeGameplayAbilitySystem() const
+{
+	if (!GameplayAbilityInputConfig)
+		return;
+
+	for (const FGameplayInputAbilityInfo& InputAbility : GameplayAbilityInputConfig->GetInputAbilities())
+	{
+		if (InputAbility.IsValid())
+		{
+			const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(
+				InputAbility.GameplayAbilityClass.LoadSynchronous(), 1 /* default ability level */,
+				InputAbility.InputID);
+			AbilitySystemComponent->GiveAbility(AbilitySpec);
+		}
+	}
 }
