@@ -29,17 +29,12 @@ void UMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 
 	TArray ActorsToIgnore{ActorInfo->AvatarActor.Get()};
 
-	//TODO
-	//consider creating trace component for dealing damage
-	
-	bool bHit = UKismetSystemLibrary::SphereTraceSingle(
-		GetWorld(), ActorInfo->AvatarActor->GetActorLocation(), ActorInfo->AvatarActor->GetActorLocation(),
-		AttackRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore,
-		EDrawDebugTrace::ForDuration, HitResult, true);
-
 	Super::ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, TriggerEventData);
 
-	if (bHit)
+	//TODO
+	//use MeleeTraceComponent to handle collision and make damage
+
+	if (false)
 	{
 		UAbilitySystemComponent* HitAbilitySystemComponent = HitResult.GetActor()->GetComponentByClass<
 			UAbilitySystemComponent>();
@@ -63,8 +58,10 @@ void UMeleeAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 
 void UMeleeAttack::OnMontageCancelled()
 {
+	CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 }
 
 void UMeleeAttack::OnMontageCompleted()
 {
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

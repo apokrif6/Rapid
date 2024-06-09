@@ -11,7 +11,7 @@ public class Rapid : ModuleRules
 		PublicDependencyModuleNames.AddRange(new[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTasks",
-			"AIModule"
+			"GameplayTags", "AIModule"
 		});
 	}
 }
