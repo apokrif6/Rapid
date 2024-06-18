@@ -6,7 +6,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Contexts/DealDamageEffectContext.h"
 #include "AbilitySystem/Effects/DealDamageEffect.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 
 void UMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                    const FGameplayAbilityActivationInfo ActivationInfo,
@@ -18,35 +19,39 @@ void UMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
 
-	PlayMontageAndWait = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this, FName("AttackAbility"), AnimMontage.Get(), 1);
-	PlayMontageAndWait->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
-	PlayMontageAndWait->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
-	PlayMontageAndWait->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-	PlayMontageAndWait->ReadyForActivation();
-
-	FHitResult HitResult;
-
-	TArray ActorsToIgnore{ActorInfo->AvatarActor.Get()};
-
-	Super::ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, TriggerEventData);
-
-	//TODO
-	//use MeleeTraceComponent to handle collision and make damage
-
-	if (false)
+	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+	StreamableManager.RequestAsyncLoad(AnimMontage.ToSoftObjectPath(), [this, TriggerEventData, ActorInfo]
 	{
-		UAbilitySystemComponent* HitAbilitySystemComponent = HitResult.GetActor()->GetComponentByClass<
-			UAbilitySystemComponent>();
-		if (!HitAbilitySystemComponent) return;
+		PlayMontageAndWait = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this, FName("AttackAbility"), AnimMontage.Get(), 1);
+		PlayMontageAndWait->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
+		PlayMontageAndWait->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
+		PlayMontageAndWait->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+		PlayMontageAndWait->ReadyForActivation();
 
-		UDealDamageEffect* GameplayEffect = NewObject<UDealDamageEffect>(this);
-		FDealDamageEffectContext* DealDamageEffectContext = new FDealDamageEffectContext;
-		DealDamageEffectContext->BaseDamage = Damage;
-		FGameplayEffectContextHandle GameplayEffectContextHandle{DealDamageEffectContext};
+		FHitResult HitResult;
 
-		HitAbilitySystemComponent->ApplyGameplayEffectToSelf(GameplayEffect, 1, GameplayEffectContextHandle);
-	}
+		TArray ActorsToIgnore{ActorInfo->AvatarActor.Get()};
+
+		Super::ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, TriggerEventData);
+
+		//TODO
+		//use MeleeTraceComponent to handle collision and make damage
+
+		if (false)
+		{
+			UAbilitySystemComponent* HitAbilitySystemComponent = HitResult.GetActor()->GetComponentByClass<
+				UAbilitySystemComponent>();
+			if (!HitAbilitySystemComponent) return;
+
+			UDealDamageEffect* GameplayEffect = NewObject<UDealDamageEffect>(this);
+			FDealDamageEffectContext* DealDamageEffectContext = new FDealDamageEffectContext;
+			DealDamageEffectContext->BaseDamage = Damage;
+			FGameplayEffectContextHandle GameplayEffectContextHandle{DealDamageEffectContext};
+
+			HitAbilitySystemComponent->ApplyGameplayEffectToSelf(GameplayEffect, 1, GameplayEffectContextHandle);
+		}
+	});
 }
 
 void UMeleeAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
