@@ -13,4 +13,9 @@ UCLASS()
 class RAPID_API URangeAttributeSet : public UBaseAttributeSet
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo")
+	FGameplayAttributeData Ammo;
+	ATTRIBUTE_ACCESSORS(URangeAttributeSet, Ammo)
 };
