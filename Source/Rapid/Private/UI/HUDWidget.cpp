@@ -11,6 +11,10 @@ void UHUDWidget::NativeConstruct()
 		if (UAbilitySystemComponent* AbilitySystemComponent = OwningPawn->GetComponentByClass<
 			UAbilitySystemComponent>())
 		{
+			OnHealthChanged(AbilitySystemComponent->GetNumericAttribute(UBaseAttributeSet::GetHealthAttribute()));
+
+			OnAmmoChanged(AbilitySystemComponent->GetNumericAttribute(URangeAttributeSet::GetAmmoAttribute()));
+
 			OnHealthAttributeChangedHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 				                                                         UBaseAttributeSet::GetHealthAttribute()).
 			                                                         AddUObject(this, &ThisClass::OnAttributeChanged);
