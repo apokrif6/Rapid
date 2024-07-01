@@ -18,4 +18,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Ammo")
 	FGameplayAttributeData Ammo;
 	ATTRIBUTE_ACCESSORS(URangeAttributeSet, Ammo)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo")
+	FGameplayAttributeData MaxAmmo;
+	ATTRIBUTE_ACCESSORS(URangeAttributeSet, MaxAmmo)
 };
