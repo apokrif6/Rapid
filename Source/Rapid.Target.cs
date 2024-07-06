@@ -10,6 +10,6 @@ public class RapidTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V4;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3;
-		ExtraModuleNames.Add("Rapid");
+		ExtraModuleNames.AddRange(new[] { "Rapid", "RapidEditor" });
 	}
 }
