@@ -20,7 +20,8 @@ public class RapidEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore",
+				"UnrealEd"
 			}
 		);
 	}
