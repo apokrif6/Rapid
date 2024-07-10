@@ -8,14 +8,14 @@
 
 void FRapidEditorModule::StartupModule()
 {
-	const TSharedPtr<FPatrolVisualizer> PatrolVisualizer = MakeShareable(new FPatrolVisualizer());
+	//const TSharedPtr<FPatrolVisualizer> PatrolVisualizer = MakeShareable(new FPatrolVisualizer());
 
-	GUnrealEd->RegisterComponentVisualizer(USphereComponent::StaticClass()->GetFName(), PatrolVisualizer);
+	//GUnrealEd->RegisterComponentVisualizer(USphereComponent::StaticClass()->GetFName(), PatrolVisualizer);
 }
 
 void FRapidEditorModule::ShutdownModule()
 {
-	GUnrealEd->UnregisterComponentVisualizer(USphereComponent::StaticClass()->GetFName());
+	//GUnrealEd->UnregisterComponentVisualizer(USphereComponent::StaticClass()->GetFName());
 }
 
 #undef LOCTEXT_NAMESPACE

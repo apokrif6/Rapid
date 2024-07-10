@@ -4,6 +4,7 @@
 #include "Characters/BaseCharacter.h"
 #include "AbilitySystem/Attributes/BaseAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/Common/HitReactionAbility.h"
 #include "AbilitySystem/Input/GameplayAbilityInputConfig.h"
 
 ABaseCharacter::ABaseCharacter()

@@ -34,13 +34,6 @@ void UReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	});
 }
 
-void UReloadAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-                                const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility,
-                                bool bWasCancelled)
-{
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
 void UReloadAbility::OnMontageCancelled()
 {
 	CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);

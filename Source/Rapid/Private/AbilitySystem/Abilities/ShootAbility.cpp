@@ -2,8 +2,11 @@
 
 
 #include "AbilitySystem/Abilities/ShootAbility.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "AbilitySystem/Abilities/Common/HitReactionAbility.h"
 #include "AbilitySystem/Contexts/DealDamageEffectContext.h"
 #include "AbilitySystem/Effects/DealDamageEffect.h"
 #include "Engine/AssetManager.h"
@@ -73,6 +76,15 @@ void UShootAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 			FGameplayEffectContextHandle GameplayEffectContextHandle{DealDamageEffectContext};
 
 			HitAbilitySystemComponent->ApplyGameplayEffectToSelf(GameplayEffect, 1, GameplayEffectContextHandle);
+
+			//TODO
+			//move to better place
+			FGameplayEventData EventData;
+			UHitNormalPayloadData* HitNormalPayloadData = NewObject<UHitNormalPayloadData>();
+			HitNormalPayloadData->ImpactPoint = HitResult.ImpactPoint;
+			EventData.OptionalObject = HitNormalPayloadData;
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitResult.GetActor(), HitReactionGameplayTag,
+			                                                         EventData);
 		}
 	});
 }

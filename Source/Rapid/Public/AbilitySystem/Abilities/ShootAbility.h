@@ -25,6 +25,9 @@ public:
 	                        bool bWasCancelled) override;
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag HitReactionGameplayTag;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
 	TSoftObjectPtr<UAnimMontage> ShootAnimMontage;
 

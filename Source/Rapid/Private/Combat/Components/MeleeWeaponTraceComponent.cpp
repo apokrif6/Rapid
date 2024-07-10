@@ -69,7 +69,7 @@ void UMeleeWeaponTraceComponent::CollisionTrace()
 	TArray<FHitResult> HitResults;
 
 	UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, Radius, ObjectTypes, false,
-	                                                 ActorsToIgnore, GDisplayAttackHitDetectionDebug
+	                                                 ActorsToIgnore, CVarDisplayMeleeWeaponTraceDebug->GetInt()
 		                                                                 ? EDrawDebugTrace::ForDuration
 		                                                                 : EDrawDebugTrace::None, HitResults, true,
 	                                                 FColor::Green, FColor::Red, 0.1);
