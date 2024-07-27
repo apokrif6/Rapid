@@ -17,6 +17,7 @@ void UMeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		!AvatarSkeletalMeshComponent)
 	{
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
 	}
 
 	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();

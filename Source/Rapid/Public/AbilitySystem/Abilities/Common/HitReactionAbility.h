@@ -37,6 +37,10 @@ public:
 	                             const FGameplayAbilityActivationInfo ActivationInfo,
 	                             const FGameplayEventData* TriggerEventData) override;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montages")
+	TMap<EHitReactionSide, TSoftObjectPtr<UAnimMontage>> HitReactionMontages;
+
 private:
 	UPROPERTY()
 	UAbilityTask_PlayMontageAndWait* PlayMontageAndWait;
@@ -48,6 +52,4 @@ private:
 	void OnMontageCompleted();
 
 	EHitReactionSide FindHitReactionDirection(const FVector& ImpactPoint) const;
-
-	UAnimMontage* FindHitReactionMontage(const EHitReactionSide HitReactionSide);
 };

@@ -6,7 +6,7 @@
 #include "Logs/RapidLog.h"
 
 static int32 GDisplayAttackHitDetectionDebug = 0;
-static FAutoConsoleVariableRef CVarDisplayMeleeWeaponTraceDebug(
+static TAutoConsoleVariable CVarDisplayMeleeWeaponTraceDebug(
 	TEXT("Rapid.DisplayMeleeWeaponTraceDebug"),
 	GDisplayAttackHitDetectionDebug,
 	TEXT("Display debug traces for melee attack hit detection (0 - disabled. 1 - enabled)"),
@@ -69,9 +69,10 @@ void UMeleeWeaponTraceComponent::CollisionTrace()
 	TArray<FHitResult> HitResults;
 
 	UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), StartLocation, EndLocation, Radius, ObjectTypes, false,
-	                                                 ActorsToIgnore, CVarDisplayMeleeWeaponTraceDebug->GetInt()
-		                                                                 ? EDrawDebugTrace::ForDuration
-		                                                                 : EDrawDebugTrace::None, HitResults, true,
+	                                                 ActorsToIgnore,
+	                                                 CVarDisplayMeleeWeaponTraceDebug.GetValueOnGameThread()
+		                                                 ? EDrawDebugTrace::ForDuration
+		                                                 : EDrawDebugTrace::None, HitResults, true,
 	                                                 FColor::Green, FColor::Red, 0.1);
 	for (FHitResult HitResult : HitResults)
 	{

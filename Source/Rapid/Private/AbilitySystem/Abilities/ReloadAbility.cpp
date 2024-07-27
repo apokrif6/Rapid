@@ -18,6 +18,7 @@ void UReloadAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		!AvatarSkeletalMeshComponent)
 	{
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
 	}
 
 	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();

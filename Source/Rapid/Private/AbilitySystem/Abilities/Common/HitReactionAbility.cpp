@@ -3,10 +3,12 @@
 
 #include "AbilitySystem/Abilities/Common/HitReactionAbility.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "Kismet/KismetMathLibrary.h"
 
 static int32 GDisplayHitReactionDebug = 0;
-static FAutoConsoleVariableRef CVarHitReactionDebug(
+static TAutoConsoleVariable CVarHitReactionDebug(
 	TEXT("Rapid.DisplayHitReactionDebug"),
 	GDisplayHitReactionDebug,
 	TEXT("Display debug visualizers for hit reactions (0 - disabled. 1 - enabled)"),
@@ -21,28 +23,38 @@ void UHitReactionAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 		!AvatarSkeletalMeshComponent)
 	{
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
 	}
 
 	if (const UHitNormalPayloadData* HitNormalData = Cast<UHitNormalPayloadData>(TriggerEventData->OptionalObject))
 	{
-		const EHitReactionSide HitReactionSide = FindHitReactionDirection(HitNormalData->ActorHitFromLocation);
+		const EHitReactionSide HitReactionSide = FindHitReactionDirection(HitNormalData->ImpactPoint);
 
-		if (UAnimMontage* HitReactionAnimMontage = FindHitReactionMontage(HitReactionSide))
+		TSoftObjectPtr<UAnimMontage>* HitReactionMontage = HitReactionMontages.Find(HitReactionSide);
+		if (!HitReactionMontage || HitReactionMontage->IsNull())
 		{
-			PlayMontageAndWait = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-				this, FName("HitReactionAbility"), HitReactionAnimMontage, 1);
-			PlayMontageAndWait->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
-			PlayMontageAndWait->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
-			PlayMontageAndWait->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-			PlayMontageAndWait->ReadyForActivation();
-
-			Super::ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, TriggerEventData);
+			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+			return;
 		}
 
-		//TODO
-		//remove after adding data asset with montages!!
-		//it's here only for testing purpose
-		Super::ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, TriggerEventData);
+		FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+		StreamableManager.RequestAsyncLoad(HitReactionMontage->ToSoftObjectPath(),
+		                                   [this, HitReactionMontage, TriggerEventData]
+		                                   {
+			                                   PlayMontageAndWait =
+				                                   UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+					                                   this, FName("HitReactionAbility"), HitReactionMontage->Get(), 1);
+			                                   PlayMontageAndWait->OnCancelled.AddDynamic(
+				                                   this, &ThisClass::OnMontageCancelled);
+			                                   PlayMontageAndWait->OnInterrupted.AddDynamic(
+				                                   this, &ThisClass::OnMontageCancelled);
+			                                   PlayMontageAndWait->OnCompleted.AddDynamic(
+				                                   this, &ThisClass::OnMontageCompleted);
+			                                   PlayMontageAndWait->ReadyForActivation();
+
+			                                   Super::ActivateAbility(CurrentSpecHandle, CurrentActorInfo,
+			                                                          CurrentActivationInfo, TriggerEventData);
+		                                   });
 	}
 }
 
@@ -58,13 +70,44 @@ void UHitReactionAbility::OnMontageCompleted()
 
 EHitReactionSide UHitReactionAbility::FindHitReactionDirection(const FVector& ImpactPoint) const
 {
+	EHitReactionSide HitReactionSide;
+
 	const FVector ActorLocation = GetActorInfo().AvatarActor.Get()->GetActorLocation();
 
-	float DotProduct = FVector::DotProduct(ActorLocation, ImpactPoint.GetSafeNormal());
+	const FVector NormalizedDirection = (ImpactPoint - ActorLocation).GetSafeNormal();
 
-	float Degree = UKismetMathLibrary::DegAcos(DotProduct);
+	const float DotForward = FVector::DotProduct(NormalizedDirection,
+	                                             GetActorInfo().AvatarActor.Get()->GetActorForwardVector());
 
-	if (CVarHitReactionDebug->GetInt() > 0)
+	const float DotRight = FVector::DotProduct(NormalizedDirection,
+	                                           GetActorInfo().AvatarActor.Get()->GetActorRightVector());
+
+	if (FMath::Abs(DotForward) >= FMath::Abs(DotRight))
+	{
+		if (DotForward > 0)
+		{
+			HitReactionSide = EHitReactionSide::Front;
+		}
+		else
+		{
+			HitReactionSide = EHitReactionSide::Back;
+		}
+	}
+	else
+	{
+		if (DotRight > 0)
+		{
+			HitReactionSide = EHitReactionSide::Right;
+		}
+		else
+		{
+			HitReactionSide = EHitReactionSide::Left;
+		}
+	}
+
+	//Consider creating new Debugger Category for this
+#if WITH_EDITOR
+	if (CVarHitReactionDebug.GetValueOnGameThread() > 0)
 	{
 		DrawDebugSphere(GetActorInfo().AvatarActor.Get()->GetWorld(), ImpactPoint, 15.f, 32, FColor::Red, false,
 		                1.f, 0, 3);
@@ -72,12 +115,13 @@ EHitReactionSide UHitReactionAbility::FindHitReactionDirection(const FVector& Im
 		DrawDebugLine(GetActorInfo().AvatarActor.Get()->GetWorld(), ActorLocation,
 		              (ImpactPoint - ActorLocation) * 300.f, FColor::Yellow, false,
 		              1.f, 0, 5);
+
+		const FString HitReactionSideString = StaticEnum<EHitReactionSide>()->GetAuthoredNameStringByValue(
+			static_cast<int64>(HitReactionSide));
+		DrawDebugString(GetActorInfo().AvatarActor.Get()->GetWorld(), ActorLocation,
+		                TEXT("Actor was hit from " + HitReactionSideString), nullptr, FColor::Red, 1.f);
 	}
+#endif
 
-	return EHitReactionSide::None;
-}
-
-UAnimMontage* UHitReactionAbility::FindHitReactionMontage(const EHitReactionSide HitReactionSide)
-{
-	return nullptr;
+	return HitReactionSide;
 }

@@ -26,6 +26,7 @@ void UShootAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		!AvatarSkeletalMeshComponent)
 	{
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
 	}
 
 	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
