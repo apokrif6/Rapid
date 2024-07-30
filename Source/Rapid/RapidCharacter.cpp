@@ -51,6 +51,10 @@ void ARapidCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//TODO
+	//add gameplay ability with cancel/confirm
+	//on ability activation grant mapping context with confirm/cancel abilities
+	
 	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
