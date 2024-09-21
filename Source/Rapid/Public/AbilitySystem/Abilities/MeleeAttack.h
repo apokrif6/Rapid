@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "RapidGameplayAbility.h"
 #include "MeleeAttack.generated.h"
 
 class UAbilityTask_PlayMontageAndWait;
@@ -11,7 +11,7 @@ class UAbilityTask_PlayMontageAndWait;
  * 
  */
 UCLASS()
-class RAPID_API UMeleeAttack : public UGameplayAbility
+class RAPID_API UMeleeAttack : public URapidGameplayAbility
 {
 	GENERATED_BODY()
 

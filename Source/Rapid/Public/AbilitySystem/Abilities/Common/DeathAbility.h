@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Abilities/RapidGameplayAbility.h"
 #include "DeathAbility.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class RAPID_API UDeathAbility : public UGameplayAbility
+class RAPID_API UDeathAbility : public URapidGameplayAbility
 {
 	GENERATED_BODY()
 

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Abilities/RapidGameplayAbility.h"
 #include "HitReactionAbility.generated.h"
 
 class UAbilityTask_PlayMontageAndWait;
@@ -28,7 +28,7 @@ enum class EHitReactionSide : uint8
 };
 
 UCLASS()
-class RAPID_API UHitReactionAbility : public UGameplayAbility
+class RAPID_API UHitReactionAbility : public URapidGameplayAbility
 {
 	GENERATED_BODY()
 
